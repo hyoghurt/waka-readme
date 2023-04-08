@@ -155,6 +155,8 @@ class WakaInput:
     show_total_time: str | bool = os.getenv('INPUT_SHOW_TOTAL') or False
     show_masked_time: str | bool = os.getenv('INPUT_SHOW_MASKED_TIME') or False
     language_count: str | int = os.getenv('INPUT_LANG_COUNT') or 5
+    show_operating_systems: str | bool = os.getenv('INPUT_SHOW_OPERATING_SYSTEMS') or False
+    show_editors: str | bool = os.getenv('INPUT_SHOW_EDITORS') or False
 
     def validate_input(self):
         """
@@ -178,6 +180,8 @@ class WakaInput:
             self.show_time = strtobool(self.show_time)
             self.show_total_time = strtobool(self.show_total_time)
             self.show_masked_time = strtobool(self.show_masked_time)
+            self.show_operating_systems = strtobool(self.show_operating_systems)
+            self.show_editors = strtobool(self.show_editors)
         except (ValueError, AttributeError) as err:
             logger.error(err)
             return False
@@ -314,6 +318,21 @@ def prep_content(stats: dict[str, Any], language_count: int = 5, /):
         )
         if idx >= language_count or lang_name == 'Other':
             break
+
+    contents += '\n'
+    # make operating systems
+    if wk_i.show_operating_systems and (
+            operating_systems := stats.get('operating_systems')
+    ):
+        operating_systems_name = tuple(map(lambda item: item.get('name'), operating_systems))
+        contents += f'Operating systems: {", ".join(operating_systems_name)}\n'
+
+    # make editors
+    if wk_i.show_editors and (
+            editors := stats.get('editors')
+    ):
+        editors_name = tuple(map(lambda item: item.get('name'), editors))
+        contents += f'Editors: {", ".join(editors_name)}\n'
 
     logger.debug('Contents were made\n')
     return contents.rstrip('\n')
