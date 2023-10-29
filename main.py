@@ -157,6 +157,9 @@ class WakaInput:
     committer_email: str = os.getenv("INPUT_COMMITTER_EMAIL", "NOT_SET")
     author_name: str = os.getenv("INPUT_AUTHOR_NAME", "NOT_SET")
     author_email: str = os.getenv("INPUT_AUTHOR_EMAIL", "NOT_SET")
+    # # my
+    show_operating_systems: str | bool = os.getenv('INPUT_SHOW_OPERATING_SYSTEMS') or False
+    show_editors: str | bool = os.getenv('INPUT_SHOW_EDITORS') or False
 
     def validate_input(self):
         """Validate Input Env Variables."""
@@ -176,6 +179,8 @@ class WakaInput:
             self.show_total_time = strtobool(self.show_total_time)
             self.show_masked_time = strtobool(self.show_masked_time)
             self.stop_at_other = strtobool(self.stop_at_other)
+            self.show_operating_systems = strtobool(self.show_operating_systems)
+            self.show_editors = strtobool(self.show_editors)
         except (ValueError, AttributeError) as err:
             logger.error(err)
             return False
@@ -335,9 +340,24 @@ def prep_content(stats: dict[str, Any], /):
             break
         if idx + 1 >= language_count > 0:  # idx starts at 0
             break
+    
+    contents += '\n'
+    # make operating systems
+    if wk_i.show_operating_systems and (
+            operating_systems := stats.get('operating_systems')
+    ):
+        operating_systems_name = tuple(map(lambda item: item.get('name'), operating_systems))
+        contents += f'Operating systems: {", ".join(operating_systems_name)}\n'
 
-    logger.debug("Contents were made\n")
-    return contents.rstrip("\n")
+    # make editors
+    if wk_i.show_editors and (
+            editors := stats.get('editors')
+    ):
+        editors_name = tuple(map(lambda item: item.get('name'), editors))
+        contents += f'Editors: {", ".join(editors_name)}\n'
+
+    logger.debug('Contents were made\n')
+    return contents.rstrip('\n')
 
 
 def fetch_stats():

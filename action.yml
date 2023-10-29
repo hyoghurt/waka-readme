@@ -97,6 +97,16 @@ inputs:
     default: "NOT_SET"
     required: false
 
+  SHOW_OPERATING_SYSTEMS:
+    description: "Displays operating systems"
+    default: "false"
+    required: false
+
+  SHOW_EDITORS:
+    description: "Displays editors"
+    default: "false"
+    required: false
+
 runs:
   using: "docker"
   image: "dockerfile"
